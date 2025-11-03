@@ -1,8 +1,5 @@
-import { Controller, Get, Post, Render, Body, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Get, Post, Render, Body, BadRequestException } from '@nestjs/common';
 import { AppService } from './app.service';
-import * as fs from 'fs';
-import * as path from 'path';
-import { Response } from 'express';
 
 interface FormData {
   nev?: string;
@@ -20,7 +17,9 @@ export class AppController {
   getHello() {
     return { message: this.appService.getHello() };
   }
+
   @Post('submit_form')
+  @Render('index')
   submitForm(@Body() formData: FormData) {
 
     if (!formData.nev) {
@@ -49,7 +48,7 @@ export class AppController {
       throw new BadRequestException('A dátum nem lehet régebbi a mainál');
     }
 
-
+    
 
     if (!formData.fo) {
       throw new BadRequestException('Létszám kötelező');
@@ -59,35 +58,9 @@ export class AppController {
       throw new BadRequestException('A létszám 1 és 10 között kell legyen');
     }
 
-    // Save data to CSV file
-    this.saveToCSV(formData);
-
-    // Redirect to success page
     return { 
-      redirect: '/success',
+      message: 'Sikeres foglalás!',
       formData: formData
     };
-  }
-
-  @Get('success')
-  @Render('success')
-  getSuccess() {
-    // This will be called after redirect, but we need the form data
-    // We'll handle this differently
-    return {};
-  }
-
-  private saveToCSV(formData: FormData) {
-    const csvFilePath = path.join(process.cwd(), 'foglalasok.csv');
-    const csvRow = `${formData.nev},${formData.email},${formData.datum},${formData.fo}\n`;
-    
-    // Check if file exists, if not create with header
-    if (!fs.existsSync(csvFilePath)) {
-      const header = 'Név,Email,Dátum,Létszám\n';
-      fs.writeFileSync(csvFilePath, header);
-    }
-    
-    // Append the new row
-    fs.appendFileSync(csvFilePath, csvRow);
   }
 }
