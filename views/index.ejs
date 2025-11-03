@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= message %></title>
+  <title>Mozi Foglalás</title>
+
 </head>
 <body>
   <h1><%= message %></h1>
+
+  <% if (typeof formData !== 'undefined') { %>
+    <div class="success">
+      <h2>Foglalás adatai:</h2>
+      <p><strong>Név:</strong> <%= formData.nev %></p>
+      <p><strong>E-mail:</strong> <%= formData.email %></p>
+      <p><strong>Dátum:</strong> <%= formData.datum %></p>
+      <p><strong>Létszám:</strong> <%= formData.fo %> fő</p>
+    </div>
+  <% } else { %>
+    <form action="/submit_form" method="post">
+
+      <label for="nev">Név (kötelező)</label><br>
+      <input type="text" id="nev" name="nev" required><br><br>
+
+      <label for="email">E-mail cím (kötelező)</label><br>
+      <input type="email" id="email" name="email" required pattern="^.+@.+$"><br><br>
+
+      <label for="datum">Dátum</label><br>
+      <input type="date" id="datum" name="datum" required><br><br>
+
+      <label for="fo">Létszám (fő)</label><br>
+      <input type="number" id="fo" name="fo" max="10" min="1" required><br><br>
+
+      <input type="submit" value="Foglalás leadása">
+
+    </form>
+  <% } %>
+
 </body>
 </html>

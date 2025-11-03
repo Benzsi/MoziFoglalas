@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sikeres foglalás</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Sikeres foglalás!</h1>
+        <div class="success-message">
+            <p>Köszönjük a foglalását!</p>
+            <div class="booking-details">
+                <h3>Foglalás részletei:</h3>
+                <p><strong>Név:</strong> <%= formData.nev %></p>
+                <p><strong>E-mail:</strong> <%= formData.email %></p>
+                <p><strong>Dátum:</strong> <%= formData.datum %></p>
+                <p><strong>Létszám:</strong> <%= formData.fo %> fő</p>
+            </div>
+            <a href="/" class="btn">Új foglalás</a>
+        </div>
+    </div>
+</body>
+</html>
