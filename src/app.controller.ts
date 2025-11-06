@@ -20,47 +20,65 @@ export class AppController {
 
   @Post('submit_form')
   @Render('index')
-  submitForm(@Body() formData: FormData) {
+  async submitForm(@Body() formData: any) {
 
-    if (!formData.nev) {
-      throw new BadRequestException('Név kötelező');
+    if (formData && formData.fo !== undefined) {
+      const n = Number(formData.fo);
+      formData.fo = isNaN(n) ? undefined : n;
+    }
+
+    const errors: string[] = [];
+
+    if (!formData.nev || !String(formData.nev).trim()) {
+      errors.push('Név kötelező');
     }
 
     const emailRegex = /^.+@.+$/;
-    
     if (!formData.email) {
-      throw new BadRequestException('E-mail cím kötelező');
-    }
-    
-    if (!emailRegex.test(formData.email)) {
-      throw new BadRequestException('Az email cim formátuma nem megfelelő.');
+      errors.push('E-mail cím kötelező');
+    } else if (!emailRegex.test(formData.email)) {
+      errors.push('Az e-mail cím formátuma nem megfelelő');
     }
 
-
-    
-     if (!formData.datum) {
-      throw new BadRequestException('Dátum kötelező');
+    if (!formData.datum) {
+      errors.push('Dátum és időpont kötelező');
+    } else {
+      const selected = new Date(formData.datum);
+      const now = new Date();
+      if (isNaN(selected.getTime())) {
+        errors.push('A megadott dátum/idő formátuma nem megfelelő');
+      } else if (selected < now) {
+        errors.push('A dátum/időpont nem lehet régebbi az aktuálisnál');
+      }
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (formData.datum < today) {
-      throw new BadRequestException('A dátum nem lehet régebbi a mainál');
+    if (formData.fo === undefined || formData.fo === null) {
+      errors.push('Létszám kötelező');
+    } else if (Number(formData.fo) < 1 || Number(formData.fo) > 10) {
+      errors.push('A létszám 1 és 10 között kell legyen');
     }
 
-    
-
-    if (!formData.fo) {
-      throw new BadRequestException('Létszám kötelező');
+    if (errors.length > 0) {
+      return {
+        message: this.appService.getHello(),
+        errors: errors,
+        old: formData,
+      };
     }
 
-    if (formData.fo < 1 || formData.fo > 10) {
-      throw new BadRequestException('A létszám 1 és 10 között kell legyen');
+    try {
+      await this.appService.saveBooking(formData);
+    } catch (err) {
+      return {
+        message: this.appService.getHello(),
+        errors: [typeof err === 'string' ? err : 'Nem sikerült menteni a foglalást'],
+        old: formData,
+      };
     }
 
-    return { 
+    return {
       message: 'Sikeres foglalás!',
-      formData: formData
+      formData: formData,
     };
   }
 }
